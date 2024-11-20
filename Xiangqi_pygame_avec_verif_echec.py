@@ -23,7 +23,7 @@ pygame.init()
 # Constantes globales
 NOMBRE_LIGNES = 10       # Nombre de lignes 
 NOMBRE_COLONNES = 9      # Nombre de colonnes 
-TAILLE_CASE = 100         # Taille d'une case en pixels
+TAILLE_CASE = 50         # Taille d'une case en pixels
 TAILLE_FENETRE_LARGEUR = NOMBRE_COLONNES * TAILLE_CASE
 TAILLE_FENETRE_HAUTEUR = NOMBRE_LIGNES * TAILLE_CASE
 
@@ -205,6 +205,8 @@ class General(Piece):
                         ligne_mire = False
         if ligne_mire == True:
             echec = True
+        
+        return echec
         
             
 
@@ -431,6 +433,16 @@ class Jeu:
                 pos_souris = pygame.mouse.get_pos()
                 ligne, colonne = self.obtenir_case_souris(pos_souris)
                 # Vérifie si une pièce est sélectionnée
+                
+                if self.tour_actuel == 'white':
+                    for p in self.pieces_J1:
+                        if isinstance(p, General):
+                            general_joueur = p
+                if self.tour_actuel == 'black':
+                     for p in self.pieces_J2:
+                         if isinstance(p, General):
+                             general_joueur = p
+                
                 if self.piece_selectionnee:
                     # Vérifie la validité du déplacement
                     if self.piece_selectionnee.mouvement_valide(ligne, colonne, self):
