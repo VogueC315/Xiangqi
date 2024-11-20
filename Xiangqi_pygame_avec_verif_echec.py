@@ -131,7 +131,7 @@ class General(Piece):
                     echec = True
         
         """on vérifie que le roi n'est pas mis en échec par un canon adverse"""
-        """à compléter"""
+        
         
         if jeu.tour_actuel == 'white':
             for piece in self.pieces_J2:
@@ -446,14 +446,24 @@ class Jeu:
                 if self.piece_selectionnee:
                     # Vérifie la validité du déplacement
                     if self.piece_selectionnee.mouvement_valide(ligne, colonne, self):
+                        #Vérifie si le roi du joueur qui joue est en échec à l'issue de son tour
+                        """à terminer"""
+                        
+                        
+                        
                         # Vérifie si une collision a lieu
                         if self.piece_selectionnee.chemin_libre(ligne, colonne, self):
                             # Vérifie s'il y a une pièce adverse sur la case de destination
                             pieces_adverses = self.pieces_J2 if self.tour_actuel == "white" else self.pieces_J1
+                            pieces_amies = self.pieces_J1 if self.tour_actuel == "white" else self.pieces_J2
                             piece_capturee = None
                             for piece in pieces_adverses:
                                 if piece.ligne == ligne and piece.colonne == colonne:
                                     piece_capturee = piece
+                                    break
+                            for piece in pieces_amies:
+                                if piece.ligne == ligne and piece.colonne == colonne:
+                                    self.piece_selectionnee = None
                                     break
                             
                             # Si une pièce adverse est présente, la capturer
@@ -461,14 +471,15 @@ class Jeu:
                                 pieces_adverses.remove(piece_capturee)  # Enlever la pièce adverse
                                 self.matrice[piece_capturee.ligne][piece_capturee.colonne] -= 1
     
-                            # Déplace la pièce sélectionnée
-                            self.matrice[self.piece_selectionnee.ligne][self.piece_selectionnee.colonne] -= 1
-                            self.matrice[ligne][colonne] += 1
-                            self.piece_selectionnee.deplacer(ligne, colonne)
-                            
-                            # Désélectionne la pièce et change de tour
-                            self.piece_selectionnee = None
-                            self.tour_actuel = "black" if self.tour_actuel == "white" else "white"
+                            if self.piece_selectionnee:
+                                # Déplace la pièce sélectionnée si la piece est encore sélectionnée
+                                self.matrice[self.piece_selectionnee.ligne][self.piece_selectionnee.colonne] -= 1
+                                self.matrice[ligne][colonne] += 1
+                                self.piece_selectionnee.deplacer(ligne, colonne)
+                                
+                                # Désélectionne la pièce et change de tour
+                                self.piece_selectionnee = None
+                                self.tour_actuel = "black" if self.tour_actuel == "white" else "white"
                         else:
                             # Si le chemin est bloqué, désélectionner la pièce
                             self.piece_selectionnee = None
