@@ -23,7 +23,7 @@ pygame.init()
 # Constantes globales
 NOMBRE_LIGNES = 10       # Nombre de lignes 
 NOMBRE_COLONNES = 9      # Nombre de colonnes 
-TAILLE_CASE = 50         # Taille d'une case en pixels
+TAILLE_CASE = 72    # Taille d'une case en pixels
 TAILLE_FENETRE_LARGEUR = NOMBRE_COLONNES * TAILLE_CASE
 TAILLE_FENETRE_HAUTEUR = NOMBRE_LIGNES * TAILLE_CASE
 
@@ -33,6 +33,51 @@ COULEUR_FOND = (255, 255, 255)   # Blanc pour le fond
 COULEUR_LIGNE = (0, 0, 0)        # Noir pour les lignes
 COULEUR_PIECE_J1 = (0, 128, 255) # Bleu pour les pièces du joueur 1
 COULEUR_PIECE_J2 = (0, 0, 0)     # Noir pour les pièces du joueur 2
+
+image_pion_noir_elephant = pygame.image.load(r"C:\Users\mathi\Downloads\babar-250.jpg")
+image_pion_noir_elephant = pygame.transform.scale(image_pion_noir_elephant, (TAILLE_CASE//1.5 , TAILLE_CASE//1.5 ))
+
+image_pion_noir_roi = pygame.image.load(r"C:/Users/mathi/Downloads/png-clipart-clash-royale-clash-of-clans-king-game-clash-of-clans-game-king.png")
+image_pion_noir_roi = pygame.transform.scale(image_pion_noir_roi, (TAILLE_CASE//1.5 , TAILLE_CASE//1.5 ))
+
+image_pion_noir_garde = pygame.image.load(r"C:\Users\mathi\Downloads\istockphoto-1336197081-612x612.jpg")
+image_pion_noir_garde = pygame.transform.scale(image_pion_noir_garde, (TAILLE_CASE//1.5 , TAILLE_CASE//1.5 ))
+
+image_pion_noir_pion = pygame.image.load(r"C:/Users/mathi/Downloads/télécharger.png")
+image_pion_noir_pion = pygame.transform.scale(image_pion_noir_pion, (TAILLE_CASE//1.5 , TAILLE_CASE//1.5 ))
+
+image_pion_noir_canon = pygame.image.load(r"C:\Users\mathi\Downloads\pngtree-military-cannon-ammunition-illustration-png-image_4506459.jpg")
+image_pion_noir_canon = pygame.transform.scale(image_pion_noir_canon, (TAILLE_CASE//1.5 , TAILLE_CASE//1.5 ))
+
+image_pion_noir_cheval = pygame.image.load(r"C:\Users\mathi\Downloads\IOMHWR33OPNAC4OWDK2BCLIBKA.jpg")
+image_pion_noir_cheval = pygame.transform.scale(image_pion_noir_cheval, (TAILLE_CASE//1.5 , TAILLE_CASE//1.5 ))
+
+image_pion_noir_char = pygame.image.load(r"C:/Users/mathi/Downloads/Zappy.webp")
+image_pion_noir_char = pygame.transform.scale(image_pion_noir_char, (TAILLE_CASE//1.5 , TAILLE_CASE//1.5 ))
+
+
+image_pion_rouge_elephant = pygame.image.load(r"C:/Users/mathi/Downloads/Xiangqi_image/babar-250.jpg")
+image_pion_rouge_elephant = pygame.transform.scale(image_pion_rouge_elephant, (TAILLE_CASE//1.5 , TAILLE_CASE//1.5 ))
+
+image_pion_rouge_roi = pygame.image.load(r"C:/Users/mathi/Downloads/Xiangqi_image/png-clipart-clash-royale-clash-of-clans-boom-beach-hay-day-android-clash-royal-game-video-game-thumbnail.png")
+image_pion_rouge_roi = pygame.transform.scale(image_pion_rouge_roi, (TAILLE_CASE//1.5 , TAILLE_CASE//1.5 ))
+
+image_pion_rouge_garde = pygame.image.load(r"C:/Users/mathi/Downloads/Xiangqi_image/istockphoto-1336197081-612x612.jpg")
+image_pion_rouge_garde = pygame.transform.scale(image_pion_rouge_garde, (TAILLE_CASE//1.5 , TAILLE_CASE//1.5 ))
+
+image_pion_rouge_pion = pygame.image.load(r"C:/Users/mathi/Downloads/Xiangqi_image/Classic_Chess_Pawn_White_1000_0001.jpg")
+image_pion_rouge_pion = pygame.transform.scale(image_pion_rouge_pion, (TAILLE_CASE//1.5 , TAILLE_CASE//1.5 ))
+
+image_pion_rouge_canon = pygame.image.load(r"C:/Users/mathi/Downloads/Xiangqi_image/pngtree-military-cannon-ammunition-illustration-png-image_4506459.jpg")
+image_pion_rouge_canon = pygame.transform.scale(image_pion_rouge_canon, (TAILLE_CASE//1.5 , TAILLE_CASE//1.5 ))
+
+image_pion_rouge_cheval = pygame.image.load(r"C:/Users/mathi/Downloads/Xiangqi_image/IOMHWR33OPNAC4OWDK2BCLIBKA.jpg")
+image_pion_rouge_cheval = pygame.transform.scale(image_pion_rouge_cheval, (TAILLE_CASE//1.5 , TAILLE_CASE//1.5 ))
+
+image_pion_rouge_char = pygame.image.load(r"C:/Users/mathi/Downloads/Xiangqi_image/Zappy.jpg")
+image_pion_rouge_char = pygame.transform.scale(image_pion_rouge_char, (TAILLE_CASE//1.5 , TAILLE_CASE//1.5 ))
+
+
 
 ############################
 # Implémentation des class #
@@ -52,8 +97,10 @@ class Piece:
         y = self.ligne * TAILLE_CASE + TAILLE_CASE // 2
         rayon = TAILLE_CASE // 3
         if self.couleur=="white":  
+
             pygame.draw.circle(ecran, COULEUR_PIECE_J1, (x, y), rayon)
         else:
+            
             pygame.draw.circle(ecran, COULEUR_PIECE_J2, (x, y), rayon)
         
     def mouvement_valide(self, nouvelle_ligne, nouvelle_colonne):
@@ -77,13 +124,24 @@ class Piece:
         """Met à jour la position de la pièce."""
         self.ligne = nouvelle_ligne
         self.colonne = nouvelle_colonne
-
+        
 
 class General(Piece):
     """Classe qui représente la pièce General sur le plateau."""
     def __init__(self, couleur, ligne, colonne):
         super().__init__(couleur, ligne, colonne)
-        
+    def dessiner(self, ecran):
+        """Dessine la pièce sous forme de cercle au centre de la case."""
+        x = self.colonne * TAILLE_CASE + TAILLE_CASE // 2
+        y = self.ligne * TAILLE_CASE + TAILLE_CASE // 2
+        rayon = TAILLE_CASE // 3
+        if self.couleur=="white":  
+            ecran.blit(image_pion_rouge_roi, (x-20, y-20))
+            #pygame.draw.circle(ecran, COULEUR_PIECE_J1, (x, y), rayon)
+        else:
+            ecran.blit(image_pion_noir_roi, (x-20, y-20))
+            #pygame.draw.circle(ecran, COULEUR_PIECE_J2, (x, y), rayon)
+           
     def mouvement_valide(self, nouvelle_ligne, nouvelle_colonne, plateau):
         """Définie les mouvements valides pour le General."""
         if self.couleur == 'white':
@@ -131,7 +189,7 @@ class General(Piece):
                     echec = True
         
         """on vérifie que le roi n'est pas mis en échec par un canon adverse"""
-        
+        """à compléter"""
         
         if jeu.tour_actuel == 'white':
             for piece in self.pieces_J2:
@@ -206,8 +264,6 @@ class General(Piece):
         if ligne_mire == True:
             echec = True
         
-        return echec
-        
             
 
     
@@ -216,7 +272,18 @@ class Conseiller(Piece):
     """Classe qui représente la pièce Conseiller sur le plateau."""
     def __init__(self, couleur, ligne, colonne):
         super().__init__(couleur, ligne, colonne)
-            
+    def dessiner(self, ecran):
+        """Dessine la pièce sous forme de cercle au centre de la case."""
+        x = self.colonne * TAILLE_CASE + TAILLE_CASE // 2
+        y = self.ligne * TAILLE_CASE + TAILLE_CASE // 2
+        rayon = TAILLE_CASE // 3
+        if self.couleur=="white":  
+            ecran.blit(image_pion_rouge_garde, (x-20, y-20))
+            #pygame.draw.circle(ecran, COULEUR_PIECE_J1, (x, y), rayon)
+        else:
+            ecran.blit(image_pion_noir_garde, (x-20, y-20))
+            #pygame.draw.circle(ecran, COULEUR_PIECE_J2, (x, y), rayon)
+        
     def mouvement_valide(self, nouvelle_ligne, nouvelle_colonne, plateau):
         """Définie les mouvements valides pour le Conseiller."""
         if self.couleur == 'white':
@@ -237,9 +304,21 @@ class Conseiller(Piece):
 
 class Elephant(Piece):
     """Classe qui représente la pièce Elephant sur le plateau."""
+    
     def __init__(self, couleur, ligne, colonne):
         super().__init__(couleur, ligne, colonne)
-            
+    def dessiner(self, ecran):
+        """Dessine la pièce sous forme de cercle au centre de la case."""
+        x = self.colonne * TAILLE_CASE + TAILLE_CASE // 2
+        y = self.ligne * TAILLE_CASE + TAILLE_CASE // 2
+        rayon = TAILLE_CASE // 3
+        if self.couleur=="white":  
+            ecran.blit(image_pion_rouge_elephant, (x-20, y-20))
+            #pygame.draw.circle(ecran, COULEUR_PIECE_J1, (x, y), rayon)
+        else:
+            ecran.blit(image_pion_noir_elephant, (x-20, y-20))
+            #pygame.draw.circle(ecran, COULEUR_PIECE_J2, (x, y), rayon)
+        
     def mouvement_valide(self, nouvelle_ligne, nouvelle_colonne, plateau):
         """Définie les mouvements valides pour l'Elephant."""
         if self.couleur == 'white':
@@ -264,7 +343,18 @@ class Cavalier(Piece):
     """Classe qui représente la pièce Cavalier sur le plateau."""
     def __init__(self, couleur, ligne, colonne):
         super().__init__(couleur, ligne, colonne)
-
+    def dessiner(self, ecran):
+        """Dessine la pièce sous forme de cercle au centre de la case."""
+        x = self.colonne * TAILLE_CASE + TAILLE_CASE // 2
+        y = self.ligne * TAILLE_CASE + TAILLE_CASE // 2
+        rayon = TAILLE_CASE // 3
+        if self.couleur=="white":  
+            ecran.blit(image_pion_rouge_cheval, (x-20, y-20))
+            #pygame.draw.circle(ecran, COULEUR_PIECE_J1, (x, y), rayon)
+        else:
+            ecran.blit(image_pion_noir_cheval, (x-20, y-20))
+            #pygame.draw.circle(ecran, COULEUR_PIECE_J2, (x, y), rayon)
+        
     def mouvement_valide(self, nouvelle_ligne, nouvelle_colonne, plateau):
         """Définie les mouvements valides pour le Cavalier."""
         dx = abs(self.colonne - nouvelle_colonne)
@@ -287,7 +377,18 @@ class Char(Piece):
     """Classe qui représente la pièce Char sur le plateau."""
     def __init__(self, couleur, ligne, colonne):
         super().__init__(couleur, ligne, colonne)
-      
+    def dessiner(self, ecran):
+        """Dessine la pièce sous forme de cercle au centre de la case."""
+        x = self.colonne * TAILLE_CASE + TAILLE_CASE // 2
+        y = self.ligne * TAILLE_CASE + TAILLE_CASE // 2
+        rayon = TAILLE_CASE // 3
+        if self.couleur=="white":  
+            ecran.blit(image_pion_rouge_char, (x-20, y-20))
+            #pygame.draw.circle(ecran, COULEUR_PIECE_J1, (x, y), rayon)
+        else:
+            ecran.blit(image_pion_noir_char, (x-20, y-20))
+            #pygame.draw.circle(ecran, COULEUR_PIECE_J2, (x, y), rayon)
+         
     def mouvement_valide(self, nouvelle_ligne, nouvelle_colonne, plateau):
         """Définie les mouvements valides pour le Char."""
         return self.colonne == nouvelle_colonne or self.ligne == nouvelle_ligne
@@ -302,13 +403,24 @@ class Char(Piece):
                 if jeu.matrice[i][self.colonne]==1:
                     return False
         return True 
-   
+    
     
 class Canon(Piece):
     """Classe qui représente la pièce Canon sur le plateau."""
     def __init__(self, couleur, ligne, colonne):
         super().__init__(couleur, ligne, colonne)
-    
+    def dessiner(self, ecran):
+        """Dessine la pièce sous forme de cercle au centre de la case."""
+        x = self.colonne * TAILLE_CASE + TAILLE_CASE // 2
+        y = self.ligne * TAILLE_CASE + TAILLE_CASE // 2
+        rayon = TAILLE_CASE // 3
+        if self.couleur=="white":  
+            ecran.blit(image_pion_rouge_canon, (x-20, y-20))
+            #pygame.draw.circle(ecran, COULEUR_PIECE_J1, (x, y), rayon)
+        else:
+            ecran.blit(image_pion_noir_canon, (x-20, y-20))
+            #pygame.draw.circle(ecran, COULEUR_PIECE_J2, (x, y), rayon)
+        
     def mouvement_valide(self, nouvelle_ligne, nouvelle_colonne, plateau):
         """Définie les mouvements valides pour le Canon."""
         return self.colonne == nouvelle_colonne or self.ligne == nouvelle_ligne
@@ -321,7 +433,18 @@ class Soldat(Piece):
     """Classe qui représente la pièce Soldat sur le plateau."""
     def __init__(self, couleur, ligne, colonne):
         super().__init__(couleur, ligne, colonne)
-    
+    def dessiner(self, ecran):
+        """Dessine la pièce sous forme de cercle au centre de la case."""
+        x = self.colonne * TAILLE_CASE + TAILLE_CASE // 2
+        y = self.ligne * TAILLE_CASE + TAILLE_CASE // 2
+        rayon = TAILLE_CASE // 3
+        if self.couleur=="white":  
+            ecran.blit(image_pion_rouge_pion, (x-20, y-20))
+            #pygame.draw.circle(ecran, COULEUR_PIECE_J1, (x, y), rayon)
+        else:
+            ecran.blit(image_pion_noir_pion, (x-20, y-20))
+            #pygame.draw.circle(ecran, COULEUR_PIECE_J2, (x, y), rayon)
+        
     def mouvement_valide(self, nouvelle_ligne, nouvelle_colonne, plateau):
         """Définie les mouvements valides pour le Soldat."""
         if self.couleur == 'white':
@@ -433,37 +556,17 @@ class Jeu:
                 pos_souris = pygame.mouse.get_pos()
                 ligne, colonne = self.obtenir_case_souris(pos_souris)
                 # Vérifie si une pièce est sélectionnée
-                
-                if self.tour_actuel == 'white':
-                    for p in self.pieces_J1:
-                        if isinstance(p, General):
-                            general_joueur = p
-                if self.tour_actuel == 'black':
-                     for p in self.pieces_J2:
-                         if isinstance(p, General):
-                             general_joueur = p
-                
                 if self.piece_selectionnee:
                     # Vérifie la validité du déplacement
                     if self.piece_selectionnee.mouvement_valide(ligne, colonne, self):
-                        #Vérifie si le roi du joueur qui joue est en échec à l'issue de son tour
-                        """à terminer"""
-                        
-                        
-                        
                         # Vérifie si une collision a lieu
                         if self.piece_selectionnee.chemin_libre(ligne, colonne, self):
                             # Vérifie s'il y a une pièce adverse sur la case de destination
                             pieces_adverses = self.pieces_J2 if self.tour_actuel == "white" else self.pieces_J1
-                            pieces_amies = self.pieces_J1 if self.tour_actuel == "white" else self.pieces_J2
                             piece_capturee = None
                             for piece in pieces_adverses:
                                 if piece.ligne == ligne and piece.colonne == colonne:
                                     piece_capturee = piece
-                                    break
-                            for piece in pieces_amies:
-                                if piece.ligne == ligne and piece.colonne == colonne:
-                                    self.piece_selectionnee = None
                                     break
                             
                             # Si une pièce adverse est présente, la capturer
@@ -471,15 +574,14 @@ class Jeu:
                                 pieces_adverses.remove(piece_capturee)  # Enlever la pièce adverse
                                 self.matrice[piece_capturee.ligne][piece_capturee.colonne] -= 1
     
-                            if self.piece_selectionnee:
-                                # Déplace la pièce sélectionnée si la piece est encore sélectionnée
-                                self.matrice[self.piece_selectionnee.ligne][self.piece_selectionnee.colonne] -= 1
-                                self.matrice[ligne][colonne] += 1
-                                self.piece_selectionnee.deplacer(ligne, colonne)
-                                
-                                # Désélectionne la pièce et change de tour
-                                self.piece_selectionnee = None
-                                self.tour_actuel = "black" if self.tour_actuel == "white" else "white"
+                            # Déplace la pièce sélectionnée
+                            self.matrice[self.piece_selectionnee.ligne][self.piece_selectionnee.colonne] -= 1
+                            self.matrice[ligne][colonne] += 1
+                            self.piece_selectionnee.deplacer(ligne, colonne)
+                            
+                            # Désélectionne la pièce et change de tour
+                            self.piece_selectionnee = None
+                            self.tour_actuel = "black" if self.tour_actuel == "white" else "white"
                         else:
                             # Si le chemin est bloqué, désélectionner la pièce
                             self.piece_selectionnee = None
