@@ -34,6 +34,7 @@ COULEUR_LIGNE = (0, 0, 0)        # Noir pour les lignes
 COULEUR_PIECE_J1 = (0, 128, 255) # Bleu pour les pièces du joueur 1
 COULEUR_PIECE_J2 = (0, 0, 0)     # Noir pour les pièces du joueur 2
 
+"""VOUS DEVEZ TELECHARGER DES IMAGES SUR INTERNET ET REMPLACER LES CHEMINS DANS LE PROGRAMME CI-DESSOUS"""
 image_pion_noir_elephant = pygame.image.load(r"C:\Users\mathi\Downloads\babar-250.jpg")
 image_pion_noir_elephant = pygame.transform.scale(image_pion_noir_elephant, (TAILLE_CASE//1.5 , TAILLE_CASE//1.5 ))
 
