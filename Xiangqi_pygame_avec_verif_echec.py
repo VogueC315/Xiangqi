@@ -160,8 +160,113 @@ class General(Piece):
     
     def chemin_libre(self, nouvelle_ligne, nouvelle_colonne, jeu):
         return True
-    
+
+    def est_echec(self, jeu):
+        """vérifie si le roi est en échec"""
+        echec = False
+        """on vérifie que le roi n'est pas mis en échec par un Soldat adverse"""
+        pos_possibles_soldat = [[self.ligne,self.colonne+1],[self.ligne,self.colonne-1],[self.ligne-1,self.colonne]]
+        for pos in pos_possibles_soldat:
+            for piece in jeu.pieces_adverses:
+                if type(piece)==Soldat and piece.mouvement_valide(self.ligne,self.colonne,self) and piece.ligne == pos[0] and piece.colonne == pos[1]:
+                    echec = True
+        """on vérifie que le roi n'est pas mis en échec par un éléphant adverse"""
+        pos_possibles_elephant = [[self.ligne+2,self.colonne+2],[self.ligne+2,self.colonne-2],[self.ligne-2,self.colonne+2],[self.ligne-2,self.colonne-2]]
+        for pos in pos_possibles_elephant:
+            for piece in jeu.pieces_adverses:
+                if type(piece)==Elephant and piece.mouvement_valide(self.ligne,self.colonne,self) and piece.ligne == pos[0] and piece.colonne == pos[1]:
+                    echec = True
+        """on vérifie que le roi n'est pas mis en échec par un cavalier adverse"""        
+        pos_possibles_cavalier = [[self.ligne+2,self.colonne+1],[self.ligne+2,self.colonne-1],[self.ligne+1,self.colonne+2],[self.ligne+1,self.colonne-2],[self.ligne-1,self.colonne+2],[self.ligne-1,self.colonne-2],[self.ligne-2,self.colonne+1],[self.ligne-2,self.colonne-1]]
+        for pos in pos_possibles_cavalier:
+            for piece in jeu.pieces_adverses:
+                if type(piece)==Cavalier and piece.mouvement_valide(self.ligne,self.colonne,self) and piece.ligne == pos[0] and piece.colonne == pos[1]:
+                    echec = True
+        """on vérifie que le roi n'est pas mis en échec par un char adverse"""
+        pos_possibles_char = [[self.ligne, i] for i in range(9)]+[[i,self.colonne] for i in range(10)]
+        for pos in pos_possibles_char:
+            for piece in jeu.pieces_adverses:
+                if type==Char and piece.mouvement_valide(self.ligne,self.colonne,self) and piece.ligne == pos[0] and piece.colonne == pos[1]:
+                    echec = True
         
+        """on vérifie que le roi n'est pas mis en échec par un canon adverse"""
+        """à compléter"""
+        
+        if jeu.tour_actuel == 'white':
+            for piece in self.pieces_J2:
+                if isinstance(piece, Canon):
+                    ligne_canon_adverse, colonne_canon_adverse = piece.ligne,piece.colonne
+            nombre_pieces_interposees = 0
+            if ligne_canon_adverse == self.ligne:
+                if colonne_canon_adverse < self.colonne:
+                    for i in range(colonne_canon_adverse,self.colonne-1):
+                        if jeu.matrice[self.ligne][i] ==1:
+                            nombre_pieces_interposees+=1
+                else:
+                    for i in range(self.colonne,colonne_canon_adverse-1):
+                        if jeu.matrice[self.ligne][i] ==1:
+                            nombre_pieces_interposees+=1
+            elif colonne_canon_adverse ==self.colonne:
+                if ligne_canon_adverse < self.ligne:
+                    for i in range(ligne_canon_adverse,self.ligne-1):
+                        if jeu.matrice[self.colonne][i] ==1:
+                            nombre_pieces_interposees+=1
+                else:
+                    for i in range(self.ligne,ligne_canon_adverse-1):
+                        if jeu.matrice[self.colonne][i] ==1:
+                            nombre_pieces_interposees+=1
+            if nombre_pieces_interposees ==1:
+                echec = True
+                
+        if jeu.tour_actuel == 'black':
+            for piece in self.pieces_J1:
+                if isinstance(piece, Canon):
+                    ligne_canon_adverse, colonne_canon_adverse = piece.ligne,piece.colonne
+            nombre_pieces_interposees = 0
+            if ligne_canon_adverse == self.ligne:
+                if colonne_canon_adverse < self.colonne:
+                    for i in range(colonne_canon_adverse,self.colonne-1):
+                        if jeu.matrice[self.ligne][i] ==1:
+                            nombre_pieces_interposees+=1
+                else:
+                    for i in range(self.colonne,colonne_canon_adverse-1):
+                        if jeu.matrice[self.ligne][i] ==1:
+                            nombre_pieces_interposees+=1
+            elif colonne_canon_adverse ==self.colonne:
+                if ligne_canon_adverse < self.ligne:
+                    for i in range(ligne_canon_adverse,self.ligne-1):
+                        if jeu.matrice[self.colonne][i] ==1:
+                            nombre_pieces_interposees+=1
+                else:
+                    for i in range(self.ligne,ligne_canon_adverse-1):
+                        if jeu.matrice[self.colonne][i] ==1:
+                            nombre_pieces_interposees+=1
+            if nombre_pieces_interposees ==1:
+                echec = True
+        
+        """on verifie que le roi n'est pas mis en échec par la ligne de mire du roi adverse"""
+        ligne_mire = True
+        if jeu.tour_actuel =='white':
+            for piece in self.pieces_J2:
+                if isinstance(piece, General):
+                    ligne_general_adverse, colonne_general_adverse = piece.ligne, piece.colonne
+            if colonne_general_adverse == self.colonne:
+                for i in range(ligne_general_adverse,self.ligne-1):
+                    if jeu.matrice[i][self.colonne] ==1:
+                        ligne_mire = False
+        if jeu.tour_actuel =='black':
+            for piece in self.pieces_J1:
+                if isinstance(piece, General):
+                    ligne_general_adverse, colonne_general_adverse = piece.ligne, piece.colonne
+            if colonne_general_adverse == self.colonne:
+                for i in range(self.ligne,ligne_general_adverse-1):
+                    if jeu.matrice[i][self.colonne] ==1:
+                        ligne_mire = False
+        if ligne_mire == True:
+            echec = True
+        return echec    
+
+    
     def est_echec(self, jeu, pieces_adverses):
         """vérifie si le roi est en échec"""
         echec = False
@@ -517,13 +622,13 @@ class Jeu:
         
         # Initialiser les pièces des joueurs
         self.pieces_J1 = [
-            Char("white", 0, 0), Cavalier("white", 0, 1), Elephant("white", 0, 2),
-            Conseiller("white", 0, 3), General("white", 0, 4), Conseiller("white", 0, 5),
+            General("white", 0, 4), Char("white", 0, 0), Cavalier("white", 0, 1), Elephant("white", 0, 2),
+            Conseiller("white", 0, 3), Conseiller("white", 0, 5),
             Elephant("white", 0, 6), Cavalier("white", 0, 7), Char("white", 0, 8)
         ]
         self.pieces_J2 = [
-            Char("black", 9, 0), Cavalier("black", 9, 1), Elephant("black", 9, 2),
-            Conseiller("black", 9, 3), General("black", 9, 4), Conseiller("black", 9, 5),
+            General("black", 9, 4), Char("black", 9, 0), Cavalier("black", 9, 1), Elephant("black", 9, 2),
+            Conseiller("black", 9, 3), Conseiller("black", 9, 5),
             Elephant("black", 9, 6), Cavalier("black", 9, 7), Char("black", 9, 8)
         ]
         
