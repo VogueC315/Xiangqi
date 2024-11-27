@@ -161,39 +161,40 @@ class General(Piece):
     def chemin_libre(self, nouvelle_ligne, nouvelle_colonne, jeu):
         return True
     
-    def verif_echec(self, jeu):
+        
+    def est_echec(self, jeu, pieces_adverses):
         """vérifie si le roi est en échec"""
         echec = False
         """on vérifie que le roi n'est pas mis en échec par un Soldat adverse"""
         pos_possibles_soldat = [[self.ligne,self.colonne+1],[self.ligne,self.colonne-1],[self.ligne-1,self.colonne]]
         for pos in pos_possibles_soldat:
-            for piece in jeu.pieces_adverses:
+            for piece in pieces_adverses:
                 if type(piece)==Soldat and piece.mouvement_valide(self.ligne,self.colonne,self) and piece.ligne == pos[0] and piece.colonne == pos[1]:
                     echec = True
         """on vérifie que le roi n'est pas mis en échec par un éléphant adverse"""
         pos_possibles_elephant = [[self.ligne+2,self.colonne+2],[self.ligne+2,self.colonne-2],[self.ligne-2,self.colonne+2],[self.ligne-2,self.colonne-2]]
         for pos in pos_possibles_elephant:
-            for piece in jeu.pieces_adverses:
+            for piece in pieces_adverses:
                 if type(piece)==Elephant and piece.mouvement_valide(self.ligne,self.colonne,self) and piece.ligne == pos[0] and piece.colonne == pos[1]:
                     echec = True
         """on vérifie que le roi n'est pas mis en échec par un cavalier adverse"""        
         pos_possibles_cavalier = [[self.ligne+2,self.colonne+1],[self.ligne+2,self.colonne-1],[self.ligne+1,self.colonne+2],[self.ligne+1,self.colonne-2],[self.ligne-1,self.colonne+2],[self.ligne-1,self.colonne-2],[self.ligne-2,self.colonne+1],[self.ligne-2,self.colonne-1]]
         for pos in pos_possibles_cavalier:
-            for piece in jeu.pieces_adverses:
+            for piece in pieces_adverses:
                 if type(piece)==Cavalier and piece.mouvement_valide(self.ligne,self.colonne,self) and piece.ligne == pos[0] and piece.colonne == pos[1]:
                     echec = True
         """on vérifie que le roi n'est pas mis en échec par un char adverse"""
         pos_possibles_char = [[self.ligne, i] for i in range(9)]+[[i,self.colonne] for i in range(10)]
         for pos in pos_possibles_char:
-            for piece in jeu.pieces_adverses:
+            for piece in pieces_adverses:
                 if type==Char and piece.mouvement_valide(self.ligne,self.colonne,self) and piece.ligne == pos[0] and piece.colonne == pos[1]:
                     echec = True
         
         """on vérifie que le roi n'est pas mis en échec par un canon adverse"""
-        """à compléter"""
+        
         
         if jeu.tour_actuel == 'white':
-            for piece in self.pieces_J2:
+            for piece in jeu.pieces_J2:
                 if isinstance(piece, Canon):
                     ligne_canon_adverse, colonne_canon_adverse = piece.ligne,piece.colonne
             nombre_pieces_interposees = 0
@@ -219,7 +220,7 @@ class General(Piece):
                 echec = True
                 
         if jeu.tour_actuel == 'black':
-            for piece in self.pieces_J1:
+            for piece in jeu.pieces_J1:
                 if isinstance(piece, Canon):
                     ligne_canon_adverse, colonne_canon_adverse = piece.ligne,piece.colonne
             nombre_pieces_interposees = 0
@@ -247,7 +248,7 @@ class General(Piece):
         """on verifie que le roi n'est pas mis en échec par la ligne de mire du roi adverse"""
         ligne_mire = True
         if jeu.tour_actuel =='white':
-            for piece in self.pieces_J2:
+            for piece in jeu.pieces_J2:
                 if isinstance(piece, General):
                     ligne_general_adverse, colonne_general_adverse = piece.ligne, piece.colonne
             if colonne_general_adverse == self.colonne:
@@ -255,7 +256,7 @@ class General(Piece):
                     if jeu.matrice[i][self.colonne] ==1:
                         ligne_mire = False
         if jeu.tour_actuel =='black':
-            for piece in self.pieces_J1:
+            for piece in jeu.pieces_J1:
                 if isinstance(piece, General):
                     ligne_general_adverse, colonne_general_adverse = piece.ligne, piece.colonne
             if colonne_general_adverse == self.colonne:
@@ -264,10 +265,8 @@ class General(Piece):
                         ligne_mire = False
         if ligne_mire == True:
             echec = True
-        
-            
-
-    
+        return echec        
+      
 
 class Conseiller(Piece):
     """Classe qui représente la pièce Conseiller sur le plateau."""
@@ -550,6 +549,8 @@ class Jeu:
     def gerer_evenements(self):
         """Gère les événements du jeu, comme les clics de souris."""
         for event in pygame.event.get():
+            pieces_adverses = self.pieces_J2 if self.tour_actuel == "white" else self.pieces_J1
+            pieces_amies = self.pieces_J1 if self.tour_actuel == "white" else self.pieces_J2
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
@@ -557,32 +558,64 @@ class Jeu:
                 pos_souris = pygame.mouse.get_pos()
                 ligne, colonne = self.obtenir_case_souris(pos_souris)
                 # Vérifie si une pièce est sélectionnée
+                
+                
                 if self.piece_selectionnee:
+                    ligne_actuelle = self.piece_selectionnee.ligne
+                    colonne_actuelle = self.piece_selectionnee.colonne
                     # Vérifie la validité du déplacement
                     if self.piece_selectionnee.mouvement_valide(ligne, colonne, self):
+
+                        
+                        
+                        
+                        
+                        
+                        
                         # Vérifie si une collision a lieu
                         if self.piece_selectionnee.chemin_libre(ligne, colonne, self):
                             # Vérifie s'il y a une pièce adverse sur la case de destination
-                            pieces_adverses = self.pieces_J2 if self.tour_actuel == "white" else self.pieces_J1
                             piece_capturee = None
                             for piece in pieces_adverses:
                                 if piece.ligne == ligne and piece.colonne == colonne:
                                     piece_capturee = piece
                                     break
+                            for piece in pieces_amies:
+                                if piece.ligne == ligne and piece.colonne == colonne:
+                                    self.piece_selectionnee = None
+                                    break
+                       
+                    
                             
+                       
+                            
+                        
                             # Si une pièce adverse est présente, la capturer
                             if piece_capturee:
                                 pieces_adverses.remove(piece_capturee)  # Enlever la pièce adverse
                                 self.matrice[piece_capturee.ligne][piece_capturee.colonne] -= 1
-    
-                            # Déplace la pièce sélectionnée
-                            self.matrice[self.piece_selectionnee.ligne][self.piece_selectionnee.colonne] -= 1
-                            self.matrice[ligne][colonne] += 1
-                            self.piece_selectionnee.deplacer(ligne, colonne)
+                                
+                            #Vérifie si le roi du joueur qui joue est en échec à l'issue de son tour
                             
-                            # Désélectionne la pièce et change de tour
-                            self.piece_selectionnee = None
-                            self.tour_actuel = "black" if self.tour_actuel == "white" else "white"
+                            general_ami = pieces_amies[0]
+                            self.piece_selectionnee.deplacer(ligne,colonne)
+                            if general_ami.est_echec(self,pieces_adverses):
+                                self.piece_selectionnee.deplacer(ligne_actuelle, colonne_actuelle)
+                                if piece_capturee:
+                                    pieces_adverses.append(piece_capturee)
+                                    self.matrice[piece_capturee.ligne][piece_capturee.colonne] += 1
+                                piece.selectionnee = None
+                            
+                              
+                            if self.piece_selectionnee:
+                                # Déplace la pièce sélectionnée si la piece est encore sélectionnée
+                                self.matrice[self.piece_selectionnee.ligne][self.piece_selectionnee.colonne] -= 1
+                                self.matrice[ligne][colonne] += 1
+                                self.piece_selectionnee.deplacer(ligne, colonne)
+                                
+                                # Désélectionne la pièce et change de tour
+                                self.piece_selectionnee = None
+                                self.tour_actuel = "black" if self.tour_actuel == "white" else "white"
                         else:
                             # Si le chemin est bloqué, désélectionner la pièce
                             self.piece_selectionnee = None
@@ -596,7 +629,6 @@ class Jeu:
                         if piece.ligne == ligne and piece.colonne == colonne:
                             self.piece_selectionnee = piece
                             break
-
 
     def mettre_a_jour(self):
         """Actualise le plateau."""
