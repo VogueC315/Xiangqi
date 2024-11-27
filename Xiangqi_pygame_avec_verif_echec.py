@@ -652,7 +652,7 @@ class Jeu:
         return ligne, colonne
 
     def gerer_evenements(self):
-        """Gère les événements du jeu, comme les clics de souris."""
+    """Gère les événements du jeu, comme les clics de souris."""
         for event in pygame.event.get():
             pieces_adverses = self.pieces_J2 if self.tour_actuel == "white" else self.pieces_J1
             pieces_amies = self.pieces_J1 if self.tour_actuel == "white" else self.pieces_J2
@@ -689,6 +689,7 @@ class Jeu:
                                 if piece.ligne == ligne and piece.colonne == colonne:
                                     self.piece_selectionnee = None
                                     break
+                                
                        
                     
                             
@@ -700,16 +701,17 @@ class Jeu:
                                 pieces_adverses.remove(piece_capturee)  # Enlever la pièce adverse
                                 self.matrice[piece_capturee.ligne][piece_capturee.colonne] -= 1
                                 
-                            #Vérifie si le roi du joueur qui joue est en échec à l'issue de son tour
+                            #Dans le cas où il n'y a pas capture, vérifie si le roi du joueur qui joue est en échec à l'issue de son tour
                             
-                            general_ami = pieces_amies[0]
-                            self.piece_selectionnee.deplacer(ligne,colonne)
-                            if general_ami.est_echec(self,pieces_adverses):
-                                self.piece_selectionnee.deplacer(ligne_actuelle, colonne_actuelle)
-                                if piece_capturee:
-                                    pieces_adverses.append(piece_capturee)
-                                    self.matrice[piece_capturee.ligne][piece_capturee.colonne] += 1
-                                piece.selectionnee = None
+                            if self.piece_selectionnee and piece_capturee==None:
+                                general_ami = pieces_amies[0]
+                                self.piece_selectionnee.deplacer(ligne,colonne)
+                                if general_ami.est_echec(self,pieces_adverses):
+                                    self.piece_selectionnee.deplacer(ligne_actuelle, colonne_actuelle)
+                                    if piece_capturee:
+                                        pieces_adverses.append(piece_capturee)
+                                        self.matrice[piece_capturee.ligne][piece_capturee.colonne] += 1
+                                    piece.selectionnee = None
                             
                               
                             if self.piece_selectionnee:
@@ -734,6 +736,7 @@ class Jeu:
                         if piece.ligne == ligne and piece.colonne == colonne:
                             self.piece_selectionnee = piece
                             break
+    
 
     def mettre_a_jour(self):
         """Actualise le plateau."""
