@@ -72,6 +72,10 @@ class Piece:
 # Subclasses for each piece type with possible_moves implementations
 
 class Soldat(Piece):
+    def __init__(self, color, pos):
+        super().__init__(color, pos)
+        self.type=Soldat
+        
     def possible_moves(self, game):
         moves = []
         row, col = self.position
@@ -97,6 +101,10 @@ class Soldat(Piece):
         return moves
 
 class Char(Piece):
+    def __init__(self, color, pos):
+        super().__init__(color, pos)
+        self.type=Char
+        
     def possible_moves(self, game):
         moves = []
         row, col = self.position
@@ -146,6 +154,10 @@ class Char(Piece):
         return moves
 
 class Cavalier(Piece):
+    def __init__(self, color, pos):
+        super().__init__(color, pos)
+        self.type=Cavalier
+    
     def possible_moves(self, game):
         moves = []
         row, col = self.position
@@ -170,6 +182,10 @@ class Cavalier(Piece):
         return moves
 
 class Elephant(Piece):
+    def __init__(self, color, pos):
+        super().__init__(color, pos)
+        self.type=Elephant
+        
     def possible_moves(self, game):
         moves = []
         row, col = self.position
@@ -196,6 +212,10 @@ class Elephant(Piece):
         return moves
 
 class Conseiller(Piece):
+    def __init__(self, color, pos):
+        super().__init__(color, pos)
+        self.type=Conseiller
+    
     def possible_moves(self, game):
         moves = []
         row, col = self.position
@@ -215,6 +235,10 @@ class Conseiller(Piece):
         return moves
 
 class General(Piece):
+    def __init__(self, color, pos):
+        super().__init__(color, pos)
+        self.type=General
+        
     def possible_moves(self, game):
         moves = []
         row, col = self.position
@@ -234,6 +258,10 @@ class General(Piece):
         return moves
 
 class Canon(Piece):
+    def __init__(self, color, pos):
+        super().__init__(color, pos)
+        self.type=Canon
+        
     def possible_moves(self, game):
         moves = []
         row, col = self.position
