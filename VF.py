@@ -86,7 +86,7 @@ class Soldat(Piece):
                 moves.append([new_row, col])
 
         # After crossing the river, can move sideways
-        river_row = 4 if self.color == "white" else 5
+        river_row = 5 if self.color == "white" else 4
         if (self.color == "white" and row >= river_row) or (self.color == "black" and row <= river_row):
             for delta_col in [-1, 1]:
                 new_col = col + delta_col
@@ -460,41 +460,48 @@ class Game:
                     else:
                         # Si le clic ne correspond pas à un mouvement valide, désélectionner la pièce
                         self.piece_selectionnee = None
+                    self.mettre_a_jour()
                 else:
                     # Sélectionner une pièce si elle appartient au joueur actuel
                     piece = self.get_piece(pos)
                     if piece and piece.color == self.current_turn:
                         self.piece_selectionnee = piece
+                    self.mettre_a_jour()
 
     def mettre_a_jour(self):
         """Actualise le plateau."""
-        self.plateau.dessiner(self.ecran)
-        for row in self.m:
-            for piece in row:
-                if piece:
-                    piece.dessiner(self.ecran)
+
 
         # Optionnel: Mettre en évidence les mouvements possibles
         if self.piece_selectionnee:
             moves = self.piece_selectionnee.valid_moves(self)
+
+            self.plateau.dessiner(self.ecran)
             for move in moves:
                 x = move[1] * TAILLE_CASE + TAILLE_CASE // 2
                 y = move[0] * TAILLE_CASE + TAILLE_CASE // 2
                 rayon = TAILLE_CASE // 6
                 pygame.draw.circle(self.ecran, "red", (x, y), rayon)
-            
             for row in self.m:
                 for piece in row:
                     if piece:
                         piece.dessiner(self.ecran)
-            
+        else: 
+            self.plateau.dessiner(self.ecran)
+            for row in self.m:
+                for piece in row:
+                    if piece:
+                        piece.dessiner(self.ecran)
         pygame.display.flip()
-
+    
+    
+    
     def lancer(self):
         clock = pygame.time.Clock()
+        self.mettre_a_jour()
         while True:
             self.handle_click()
-            self.mettre_a_jour()
+            #self.mettre_a_jour()
             clock.tick(60)  # Limite à 60 FPS
 
 # Initialisation du jeu
