@@ -17,6 +17,7 @@ TAILLE_FENETRE_LARGEUR = NOMBRE_COLONNES * TAILLE_CASE
 TAILLE_FENETRE_HAUTEUR = NOMBRE_LIGNES * TAILLE_CASE
 
 # Couleurs
+COULEUR_FOND1=(185,156,107)
 COULEUR_FOND = (255, 255, 255)   # Blanc pour le fond
 COULEUR_LIGNE = (0, 0, 0)        # Noir pour les lignes
 
@@ -351,13 +352,13 @@ class Board:
 
     def dessiner(self, ecran):
         """Dessine la grille du plateau."""
-        ecran.fill(COULEUR_FOND)
+        ecran.fill(COULEUR_FOND1)
         # Tracé des lignes horizontales
-        for ligne in range(NOMBRE_LIGNES + 1):
-            pygame.draw.line(ecran, COULEUR_LIGNE, (0, ligne * TAILLE_CASE), (self.largeur, ligne * TAILLE_CASE), 2)
+        for ligne in range(NOMBRE_LIGNES ):
+            pygame.draw.line(ecran, COULEUR_LIGNE, (0, TAILLE_CASE/2 + ligne * TAILLE_CASE), (self.largeur, TAILLE_CASE/2 + ligne * TAILLE_CASE), 2)
         # Tracé des lignes verticales
-        for colonne in range(NOMBRE_COLONNES + 1):
-            pygame.draw.line(ecran, COULEUR_LIGNE, (colonne * TAILLE_CASE, 0), (colonne * TAILLE_CASE, self.hauteur), 2)
+        for colonne in range(NOMBRE_COLONNES):
+            pygame.draw.line(ecran, COULEUR_LIGNE, (TAILLE_CASE/2 + colonne * TAILLE_CASE, 0), (TAILLE_CASE/2 + colonne * TAILLE_CASE, self.hauteur), 2)
 
 class Game:
     """Classe principale qui gère le jeu."""
