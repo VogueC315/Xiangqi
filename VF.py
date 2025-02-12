@@ -74,7 +74,7 @@ class Piece:
 class Soldat(Piece):
     def __init__(self, color, pos):
         super().__init__(color, pos)
-        self.type=Soldat
+        self.type="Soldat"
         
     def possible_moves(self, game):
         moves = []
@@ -103,7 +103,7 @@ class Soldat(Piece):
 class Char(Piece):
     def __init__(self, color, pos):
         super().__init__(color, pos)
-        self.type=Char
+        self.type="Char"
         
     def possible_moves(self, game):
         moves = []
@@ -156,7 +156,7 @@ class Char(Piece):
 class Cavalier(Piece):
     def __init__(self, color, pos):
         super().__init__(color, pos)
-        self.type=Cavalier
+        self.type="Cavalier"
     
     def possible_moves(self, game):
         moves = []
@@ -184,7 +184,7 @@ class Cavalier(Piece):
 class Elephant(Piece):
     def __init__(self, color, pos):
         super().__init__(color, pos)
-        self.type=Elephant
+        self.type="Elephant"
         
     def possible_moves(self, game):
         moves = []
@@ -214,7 +214,7 @@ class Elephant(Piece):
 class Conseiller(Piece):
     def __init__(self, color, pos):
         super().__init__(color, pos)
-        self.type=Conseiller
+        self.type="Conseiller"
     
     def possible_moves(self, game):
         moves = []
@@ -237,7 +237,7 @@ class Conseiller(Piece):
 class General(Piece):
     def __init__(self, color, pos):
         super().__init__(color, pos)
-        self.type=General
+        self.type="General"
         
     def possible_moves(self, game):
         moves = []
@@ -260,7 +260,7 @@ class General(Piece):
 class Canon(Piece):
     def __init__(self, color, pos):
         super().__init__(color, pos)
-        self.type=Canon
+        self.type="Canon"
         
     def possible_moves(self, game):
         moves = []
