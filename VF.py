@@ -157,13 +157,13 @@ class Cavalier(Piece):
             (1, 2), (2, 1)
         ]
         for dr, dc in knight_moves:
-            mid_row = row + (dr // 2)
-            mid_col = col + (dc // 2)
+            mid_row = row + (dr/abs(dr))*(abs(dr) // 2)
+            mid_col = col + (dc/abs(dc))*(abs(dc) // 2)
             dest_row = row + dr
             dest_col = col + dc
             if 0 <= dest_row < NOMBRE_LIGNES and 0 <= dest_col < NOMBRE_COLONNES:
                 # Check if the path is blocked
-                if game.get_piece([mid_row, mid_col]) is None:
+                if game.get_piece([int(mid_row), int(mid_col)]) is None:
                     dest_piece = game.get_piece([dest_row, dest_col])
                     if dest_piece is None or dest_piece.color != self.color:
                         moves.append([dest_row, dest_col])
@@ -444,6 +444,9 @@ class Game:
                 pygame.quit()
                 sys.exit()
             elif event.type == pygame.MOUSEBUTTONDOWN:
+                if self.check_mate():
+                    pygame.quit()
+                    sys.exit()
                 pos_souris = pygame.mouse.get_pos()
                 row, col = self.get_mouse_location(pos_souris)
                 pos = [row, col]
@@ -479,7 +482,12 @@ class Game:
                 y = move[0] * TAILLE_CASE + TAILLE_CASE // 2
                 rayon = TAILLE_CASE // 6
                 pygame.draw.circle(self.ecran, "red", (x, y), rayon)
-
+            
+            for row in self.m:
+                for piece in row:
+                    if piece:
+                        piece.dessiner(self.ecran)
+            
         pygame.display.flip()
 
     def lancer(self):
