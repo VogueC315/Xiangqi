@@ -75,7 +75,7 @@ class Soldat(Piece):
     def __init__(self, color, pos):
         super().__init__(color, pos)
         self.type="Soldat"
-        
+
     def possible_moves(self, game):
         moves = []
         row, col = self.position
@@ -105,7 +105,7 @@ class Char(Piece):
         super().__init__(color, pos)
         self.type="Char"
         self.matrice=matrice_char if self.color=='white' else matrice_char[::-1]
-   
+
     def possible_moves(self, game):
         moves = []
         row, col = self.position
@@ -158,7 +158,7 @@ class Cavalier(Piece):
     def __init__(self, color, pos):
         super().__init__(color, pos)
         self.type="Cavalier"
-    
+
     def possible_moves(self, game):
         moves = []
         row, col = self.position
@@ -186,7 +186,7 @@ class Elephant(Piece):
     def __init__(self, color, pos):
         super().__init__(color, pos)
         self.type="Elephant"
-        
+
     def possible_moves(self, game):
         moves = []
         row, col = self.position
@@ -216,7 +216,7 @@ class Conseiller(Piece):
     def __init__(self, color, pos):
         super().__init__(color, pos)
         self.type="Conseiller"
-    
+
     def possible_moves(self, game):
         moves = []
         row, col = self.position
@@ -239,7 +239,7 @@ class General(Piece):
     def __init__(self, color, pos):
         super().__init__(color, pos)
         self.type="General"
-        
+
     def possible_moves(self, game):
         moves = []
         row, col = self.position
@@ -262,7 +262,7 @@ class Canon(Piece):
     def __init__(self, color, pos):
         super().__init__(color, pos)
         self.type="Canon"
-        
+
     def possible_moves(self, game):
         moves = []
         row, col = self.position
@@ -515,16 +515,16 @@ class Game:
                 for piece in row:
                     if piece:
                         piece.dessiner(self.ecran)
-        else: 
+        else:
             self.plateau.dessiner(self.ecran)
             for row in self.m:
                 for piece in row:
                     if piece:
                         piece.dessiner(self.ecran)
         pygame.display.flip()
-    
-    
-    
+
+
+
     def lancer(self):
         clock = pygame.time.Clock()
         self.mettre_a_jour()
@@ -615,7 +615,7 @@ import copy  # Pour copier la position sans la modifier
 
 def make_move(jeu, move):
     new_position = copy.deepcopy(jeu)  # Crée une copie de la position actuelle
-    new_position.apply_move(move)  
+    new_position.apply_move(move)
     '''à modif avec la fonction qui applique un mouvement au jeu'''
     return new_position
 
@@ -660,7 +660,7 @@ def make_move(jeu, move):
 
 
 def minimax(jeu, profondeur, joueur_max,alpha,beta):
-    if profondeur == 0 or check_mate(jeu): 
+    if profondeur == 0 or check_mate(jeu):
         '''à modifier : game_over'''
         return evaluation_pos(jeu)
 
@@ -670,7 +670,7 @@ def minimax(jeu, profondeur, joueur_max,alpha,beta):
         max_eval = float('-inf')
         for piece in jeu.pieces_J2:
             for mouv in piece.possible_moves(jeu):
-                new_jeu = make_move(jeu, mouv)  
+                new_jeu = make_move(jeu, mouv)
                 '''modif make move'''
                 eval,_ = minimax(new_jeu, profondeur - 1, False,alpha,beta)
                 if eval > max_eval:  # Mise à jour du meilleur coup
@@ -700,14 +700,15 @@ def minimax(jeu, profondeur, joueur_max,alpha,beta):
 
 
 ##appel à la fonction minmax
-_, best_move = minimax(current_position, profondeur=3, joueur_max = True, alpha=float('inf'), beta=float('inf')) 
+_, best_move = minimax(current_position, profondeur=3, joueur_max = True, alpha=float('inf'), beta=float('inf'))
 '''à modif : current_position'''
 
 
-current_position = make_move(current_position, best_move)  
+current_position = make_move(current_position, best_move)
 '''modif make_move'''
 
 ##
 if __name__ == "__main__":
-    jeu = Jeu()
+    plateau = Board()
+    jeu = Game(plateau)
     jeu.lancer()
