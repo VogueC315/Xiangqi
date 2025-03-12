@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Wed Feb  5 17:02:13 2025
+Created on Wed Feb 26 15:00:11 2025
 
 @author: jlbou
 """
@@ -19,7 +19,7 @@ TAILLE_CASE = 50         # Taille d'une case en pixels
 TAILLE_FENETRE_LARGEUR = NOMBRE_COLONNES * TAILLE_CASE
 TAILLE_FENETRE_HAUTEUR = NOMBRE_LIGNES * TAILLE_CASE
 
-son_explosion = pygame.mixer.Sound("awp-shoot-sound-effect-cs_go.mp3")
+#son_explosion = pygame.mixer.Sound("awp-shoot-sound-effect-cs_go.mp3")
 # sound_victory = 
 # sound_capture = 
 # sound_check = 
@@ -78,7 +78,12 @@ class Piece:
             pygame.draw.circle(ecran, "blue", (x, y), rayon)
         else:
             pygame.draw.circle(ecran, "black", (x, y), rayon)
-
+    
+    def make_move(self, jeu, movee):
+        new_position = jeu.clone_state()  # Crée une copie de la position actuelle
+        self.move(movee,new_position)
+        '''à modif avec la fonction qui applique un mouvement au jeu'''
+        return new_position
 ##############
 # Subclasses #
 ##############
@@ -426,14 +431,39 @@ class Game:
         self.piece_selectionnee = None
         self.historique = []
         self.piece_capturee = None
+        
+        self.pieces_J1=[]
+        self.pieces_J2=[]
+        
+        
+        ##evaluation
+        self.matrice_char = [[14, 14, 12, 18, 16, 18, 12, 14, 14],[16, 20, 18, 24, 26, 24, 18, 20, 16 ],[12, 12, 12, 18, 18, 18, 12, 12, 12],[12, 18, 16, 22, 22, 22, 16, 18, 12 ],[12, 14, 12, 18, 18, 18, 12, 14, 12],[12, 16, 14, 20, 20, 20, 14, 16, 12],[6, 10, 8 ,14 ,14 ,14 ,8 ,10,6],[4, 8, 6, 14, 12, 14, 6, 8, 4],[8, 4, 8, 16, 8, 16, 8, 4, 8 ],[-2, 10, 6, 14, 12, 14, 6, 10, -2]]
 
+        self.matrice_cavalier = [[4, 8, 16, 12, 4, 12, 16, 8, 4],[4, 10, 28, 16, 8, 16, 28, 10, 4],[12, 14, 16, 20, 18, 20, 16, 14, 12],[8, 24, 18, 24, 20, 24, 18, 24, 8],[6, 16, 14, 18, 16, 18, 14, 16, 6],[4, 12, 16, 14, 12, 14, 16, 12, 4],[2, 6, 8, 6, 10, 6, 8, 6, 2],[4, 2, 8, 8, 4, 8, 8, 2, 4],[0, 2, 4, 4, -2, 4, 4, 2, 0],[0, -4, 0, 0, 0, 0, 0, -4, 0]]
+
+        self.matrice_canon = [[6, 4, 0, -10, -12, -10, 0, 4, 6 ],[2, 2, 0, -4, -14, -4, 0, 2, 2],[2, 2, 0, -10, -8, -10, 0, 2, 2 ],[0, 0, -2, 4, 10, 4, -2, 0, 0 ],[0, 0, 0, 2, 8, 2, 0, 0, 0 ],[-2, 0, 4, 2, 6, 2, 4, 0, -2],[0, 0, 0, 2, 4, 2, 0, 0, 0],[4, 0, 8, 6, 10, 6, 8, 0, 4 ],[0, 2, 4, 6, 6, 6, 4, 2, 0],[0, 0, 2, 6, 6, 6, 2, 0, 0 ]]
+
+        self.matrice_soldat = [[0, 1, 2, 3, 4, 3, 2, 1, 0],[5, 9, 14, 16, 18, 16, 14, 9, 5],[4, 8, 11, 12, 16, 12, 11, 8, 4],[3, 6, 8, 9, 10, 9, 8, 6, 3],[2, 4, 5, 5, 6, 5, 5, 4, 2],[1, 0, 2, 0, 2, 0, 2, 0, 1],[0, 0, -2, 0, 1, 0, -2, 0, 0],[0, 0, 0, 0, 0, 0, 0, 0, 0],[0, 0, 0, 0, 0, 0, 0, 0, 0],[0, 0, 0, 0, 0, 0, 0, 0, 0]]
+
+        self.matrice_elephant = [[0, 0, 0, 0, 0, 0, 0, 0, 0],[0, 0, 0, 0, 0, 0, 0, 0, 0],[0, 0, 0, 0, 0, 0, 0, 0, 0],[0, 0, 0, 0, 0, 0, 0, 0, 0],[0, 0, 0, 0, 0, 0, 0, 0, 0],[0, 0, 2, 0, 0, 0, 2, 0, 0],[0, 0, 0, 0, 0, 0, 0, 0, 0],[2, 0, 0, 0, 4, 0, 0, 0, 0],[0, 0, 0, 0, 0, 0, 0, 0, 0],[0, 0, 2, 0, 0, 0, 2, 0, 0]]
+
+        self.matrice_conseiller = [[0, 0, 0, 0, 0, 0, 0, 0, 0],[0, 0, 0, 0, 0, 0, 0, 0, 0],[0, 0, 0, 0, 0, 0, 0, 0, 0],[0, 0, 0, 0, 0, 0, 0, 0, 0],[0, 0, 0, 0, 0, 0, 0, 0, 0],[0, 0, 0, 0, 0, 0, 0, 0, 0],[0, 0, 0, 0, 0, 0, 0, 0, 0],[0, 0, 0, 1, 0, 1, 0, 0, 0],[0, 0, 0, 0, 2, 0, 0, 0, 0],[0, 0, 0, 1, 0, 1, 0, 0, 0]]
+
+        self.matrice_general = [[0, 0, 0, 0, 0, 0, 0, 0, 0],[0, 0, 0, 0, 0, 0, 0, 0, 0],[0, 0, 0, 0, 0, 0, 0, 0, 0],[0, 0, 0, 0, 0, 0, 0, 0, 0],[0, 0, 0, 0, 0, 0, 0, 0, 0],[0, 0, 0, 0, 0, 0, 0, 0, 0],[0, 0, 0, 0, 0, 0, 0, 0, 0],[0, 0, 0, 1, 1, 1, 0, 0, 0],[0, 0, 0, 1, 2, 1, 0, 0, 0],[0, 0, 0, 1, 3, 1, 0, 0, 0]]
+
+        self.valeur_base = {"Conseiller": self.matrice_conseiller, 'Elephant': self.matrice_elephant, 'Cavalier': self.matrice_cavalier, 'Char': self.matrice_char,'Canon': self.matrice_canon, "Soldat": self.matrice_soldat,'General': self.matrice_general}
+
+        self.valeur_capture = {'Conseiller': 2, 'Elephant': 2, 'Cavalier': 4, 'Char': 9,'Canon': 4, 'Soldat': 1,'General':15}
+
+
+        
     def clone_state(self):
         clone = Game(self.plateau)
         clone.current_turn = self.current_turn
         clone.m = copy.deepcopy(self.m)
         clone.piece_selectionnee = None
         return clone
-
+    
     def get_piece(self, pos):
         if not (0 <= pos[0] < NOMBRE_LIGNES and 0 <= pos[1] < NOMBRE_COLONNES):
             return None
@@ -466,7 +496,7 @@ class Game:
     def find_general(self, color):
         for row in self.m:
             for piece in row:
-                if piece and piece.type == 'General' and piece.color == color:
+                if piece and piece.type == "General" and piece.color == color:
                     return piece.position
 
     def check_mate(self):
@@ -495,6 +525,7 @@ class Game:
                     # sound_victory.play()
                     pygame.quit()
                     sys.exit()
+            
                 pos_souris = pygame.mouse.get_pos()
                 row, col = self.get_mouse_location(pos_souris)
                 pos = [row, col]
@@ -502,7 +533,7 @@ class Game:
                 if self.piece_selectionnee:
                     if pos in self.piece_selectionnee.valid_moves(self):
                         self.piece_selectionnee.move(pos, self)
-                        son_explosion.play()
+                        #son_explosion.play()
                         self.piece_selectionnee = None
                         # Changes the turn
                         self.current_turn = "black" if self.current_turn == "white" else "white"
@@ -519,6 +550,17 @@ class Game:
 
     def mettre_a_jour(self):
         """Actualise le plateau."""
+        self.pieces_J1=[]
+        self.pieces_J2=[]
+        
+        for row in self.m:
+            for piece in row:
+                if piece:
+                    if piece.color=="white":
+                        self.pieces_J1.append(piece)
+                    else : 
+                        self.pieces_J2.append(piece)
+        
         if self.piece_selectionnee:
             moves = self.piece_selectionnee.valid_moves(self)
 
@@ -539,14 +581,148 @@ class Game:
                     if piece:
                         piece.dessiner(self.ecran)
         pygame.display.flip()
+        
+    
     
     def lancer(self):
         clock = pygame.time.Clock()
         self.mettre_a_jour()
         while True:
-            self.handle_click()
-            #self.mettre_a_jour()
+            if self.current_turn=="black":
+                
+                _, best_move, best_piece = self.minimax(profondeur=3, joueur_max=True)
+                print(best_move)
+                print(best_piece)
+                print(self.m)
+                best_piece.position=best_move
+                print(self.m)
+                self.current_turn = 'white'
+            else:
+                self.handle_click()
+                #self.mettre_a_jour()
             clock.tick(60)  # Limite à 60 FPS
+            
+    
+            
+    def interactions(self,piece): #interactions entre une piece et le plateau (menace, garde, mobilite))
+        est_menacé, est_gardé=0,0
+        menace,garde=0,0
+        pieces_adverses = self.pieces_J2 if self.tour_actuel == "white" else self.pieces_J1
+        '''à modif selon qui est blanc/noir'''
+        pieces_amies = self.pieces_J1 if self.tour_actuel == "white" else self.pieces_J2
+        pos_piece = [piece.ligne,piece.colonne]
+
+        for ami in pieces_amies:
+            pos_ami = [ami.ligne,ami.colonne]
+            if pos_piece in ami.valid_moves(self):
+                '''à modif : mouvements_possibles '''
+                est_gardé+=1
+            if pos_ami in piece.valid_moves(self):
+                garde+=self.valeur_capture[ami.type]
+
+        for adv in pieces_adverses:
+            pos_adv = [adv.ligne,adv.colonne]
+            if pos_piece in adv.valid_moves(self):
+                est_menacé+=1
+            if pos_adv in piece.valid_moves(self):
+                menace+=self.valeur_capture[adv.type]
+
+        mobilite = len(piece.possible_moves(self))
+
+        return garde,menace,est_gardé,est_menacé,mobilite
+    
+    def evaluation_piece(self,piece):  #evaluation de l'impact de chaque pièce dans le jeu
+        x,y = piece.position[0],piece.position[1]
+        evaluate = self.valeur_base[piece.type][x][y]
+
+        bonus=malus=0
+        garde,menace,est_gardé,est_menacé,mobilite = self.interactions(piece)
+        bonus = bonus + garde + est_gardé + menace + mobilite
+        malus = malus + est_menacé*2
+
+        evaluate = evaluate + bonus - malus
+
+        return evaluate
+    
+    def evaluation_pos(self):  #evaluation globale d'une situation de jeu pour un joueur donné
+        pieces_adverses = self.pieces_J1
+        pieces_amies = self.pieces_J2
+        evaluate=0
+        for piece in pieces_adverses:
+            evaluate-=self.evaluation_piece(piece)
+    
+        for piece in pieces_amies:
+            evaluate+=self.evaluation_piece(piece)
+    
+        return evaluate
+
+    def minimax(self, profondeur, joueur_max):
+        if profondeur == 0 or self.check_mate():
+            return self.evaluation_pos()
+    
+        best_piece = None
+        best_move = None
+    
+        if joueur_max:  # Tour du joueur
+            max_eval = float('-inf')
+            for piece in self.pieces_J2:
+                for mouv in piece.valid_moves(self):
+                    # Clonez l'état actuel avant de simuler le mouvement
+                    new_jeu = self.clone_state()
+                    new_piece = new_jeu.get_piece(piece.position)
+                    new_piece.move(mouv, new_jeu)
+                    eval, _, __ = new_jeu.minimax(profondeur - 1, False)
+                    if eval > max_eval:  # Mise à jour du meilleur coup
+                        max_eval = eval
+                        best_move = mouv
+                        best_piece = piece
+    
+            return max_eval, best_move, best_piece
+        else:  # Tour de l'adversaire
+            min_eval = float('inf')
+            for piece in self.pieces_J1:
+                for mouv in piece.valid_moves(self):
+                    # Clonez l'état actuel avant de simuler le mouvement
+                    new_jeu = self.clone_state()
+                    new_piece = new_jeu.get_piece(piece.position)
+                    new_piece.move(mouv, new_jeu)
+                    eval, _, __ = new_jeu.minimax(profondeur - 1, True)
+                    if eval < min_eval:  # Mise à jour du pire coup pour MAX
+                        min_eval = eval
+                        best_move = mouv
+                        best_piece = piece
+            return min_eval, best_move, best_piece
+
+    # def minimax(self, profondeur, joueur_max):
+    #     if profondeur == 0 or self.check_mate():
+    #         return self.evaluation_pos()
+    #     best_piece=None
+    #     best_move = None
+
+    #     if joueur_max:  # Tour du joueur
+    #         max_eval = float('-inf')
+    #         for piece in self.pieces_J2:
+    #             for mouv in piece.valid_moves(self):
+    #                 new_jeu = piece.make_move(self, mouv)
+    #                 eval,_,__ = new_jeu.minimax(profondeur - 1, False)
+    #                 if eval > max_eval:  # Mise à jour du meilleur coup
+    #                     max_eval = eval
+    #                     best_move = mouv
+    #                     best_piece=piece
+
+    #         return max_eval, best_move,best_piece
+    #     else:  # Tour de l'adversaire
+    #         min_eval = float('inf')
+    #         for piece in self.pieces_J1:
+    #             for mouv in piece.valid_moves(self):
+    #                 new_jeu = piece.make_move(self, mouv)
+    #                 eval,_,__ = new_jeu.minimax(profondeur - 1, True)
+    #                 if eval < min_eval:  # Mise à jour du pire coup pour MAX
+    #                     min_eval = eval
+    #                     best_move = mouv
+    #                     best_piece=piece
+    #         return min_eval, best_move, best_piece
+        
 
 # Initialisation du jeu
 if __name__ == "__main__":
@@ -554,3 +730,4 @@ if __name__ == "__main__":
     plateau = Board()
     jeu = Game(plateau)
     jeu.lancer()
+
