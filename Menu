@@ -1,0 +1,507 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Nov  6 16:26:58 2024
+
+@author: jlbou
+"""
+
+##################
+# Echecs chinois #
+##################
+
+################################
+# Quelques importations utiles #
+################################
+
+import pygame
+import sys
+
+
+# Initialiser pygame
+pygame.init()
+
+# Constantes globales
+NOMBRE_LIGNES = 10       # Nombre de lignes 
+NOMBRE_COLONNES = 9      # Nombre de colonnes 
+TAILLE_CASE = 50         # Taille d'une case en pixels
+TAILLE_FENETRE_LARGEUR = NOMBRE_COLONNES * TAILLE_CASE
+TAILLE_FENETRE_HAUTEUR = NOMBRE_LIGNES * TAILLE_CASE
+
+OFFSET_X = 30
+OFFSET_Y = 30
+
+
+# Couleurs
+COULEUR_FOND = (255, 255, 255)   # Blanc pour le fond
+COULEUR_LIGNE = (0, 0, 0)        # Noir pour les lignes
+COULEUR_PIECE_J1 = (0, 128, 255) # Bleu pour les pièces du joueur 1
+COULEUR_PIECE_J2 = (0, 0, 0)     # Noir pour les pièces du joueur 2
+
+############################
+# Implémentation des class #
+############################
+
+class Piece:
+    """Classe qui représente une pièce sur le plateau."""
+    def __init__(self, couleur, ligne, colonne):
+        self.couleur = couleur
+        self.ligne = ligne
+        self.colonne = colonne
+        self.selectionnee = False
+
+    def dessiner(self, ecran):
+        """Dessine la pièce sous forme de cercle au centre de la case."""
+        x = self.colonne * TAILLE_CASE + TAILLE_CASE // 2 + OFFSET_X
+        y = self.ligne * TAILLE_CASE + TAILLE_CASE // 2 + OFFSET_Y
+        rayon = TAILLE_CASE // 3
+        if self.couleur=="white":  
+            pygame.draw.circle(ecran, COULEUR_PIECE_J1, (x, y), rayon)
+        else:
+            pygame.draw.circle(ecran, COULEUR_PIECE_J2, (x, y), rayon)
+        
+    def mouvement_valide(self, nouvelle_ligne, nouvelle_colonne):
+        """Vérifie que le mouvement est possible."""
+        raise NotImplementedError("This method should be overridden by subclasses")
+    
+    def zone_autorisee(self, nouvelle_ligne, nouvelle_colonne, colonnes_autorisees=None, lignes_autorisees=None):
+        """Vérifie que la pièce se trouve dans une zone autorisée."""
+        # Vérifie si une position est dans une zone donnée (colonnes et/ou lignes spécifiques)
+        if colonnes_autorisees is not None and nouvelle_colonne not in colonnes_autorisees:
+            return False
+        if lignes_autorisees is not None and nouvelle_ligne not in lignes_autorisees:
+            return False
+        return True
+    
+    def chemin_libre(self, nouvelle_ligne, nouvelle_colonne, jeu):
+        """Vérifie que le mouvement est possible."""
+        raise NotImplementedError("This method should be overridden by subclasses")
+    
+    def deplacer(self, nouvelle_ligne, nouvelle_colonne):
+        """Met à jour la position de la pièce."""
+        self.ligne = nouvelle_ligne
+        self.colonne = nouvelle_colonne
+
+
+class General(Piece):
+    """Classe qui représente la pièce General sur le plateau."""
+    def __init__(self, couleur, ligne, colonne):
+        super().__init__(couleur, ligne, colonne)
+        
+    def mouvement_valide(self, nouvelle_ligne, nouvelle_colonne, plateau):
+        """Définie les mouvements valides pour le General."""
+        if self.couleur == 'white':
+            # Roi blanc restreint aux colonnes 2, 3 et lignes 5, 6
+            if not self.zone_autorisee(nouvelle_ligne, nouvelle_colonne, colonnes_autorisees=range(3, 6), lignes_autorisees=range(0, 3)):
+                return False
+        else:
+            # Roi noir restreint aux colonnes 0, 1 et lignes 0, 1
+            if not self.zone_autorisee(nouvelle_ligne, nouvelle_colonne, colonnes_autorisees=range(3, 6), lignes_autorisees=range(7, 10)):
+                return False
+        
+        dx = abs(self.colonne - nouvelle_colonne)
+        dy = abs(self.ligne - nouvelle_ligne)
+        return (dx == 1 and dy == 0) or (dx == 0 and dy == 1) 
+    
+    def chemin_libre(self, nouvelle_ligne, nouvelle_colonne, jeu):
+        return True
+
+class Conseiller(Piece):
+    """Classe qui représente la pièce Conseiller sur le plateau."""
+    def __init__(self, couleur, ligne, colonne):
+        super().__init__(couleur, ligne, colonne)
+            
+    def mouvement_valide(self, nouvelle_ligne, nouvelle_colonne, plateau):
+        """Définie les mouvements valides pour le Conseiller."""
+        if self.couleur == 'white':
+            # Roi blanc restreint aux colonnes 2, 3 et lignes 5, 6
+            if not self.zone_autorisee(nouvelle_ligne, nouvelle_colonne, colonnes_autorisees=range(3, 6), lignes_autorisees=range(0, 3)):
+                return False
+        else:
+            # Roi noir restreint aux colonnes 0, 1 et lignes 0, 1
+            if not self.is_in_allowed_zone(nouvelle_ligne, nouvelle_colonne, colonnes_autorisees=range(3, 6), lignes_autorisees=range(7, 10)):
+                return False
+        
+        dx = abs(self.colonne - nouvelle_colonne)
+        dy = abs(self.ligne - nouvelle_ligne)
+        return dx == 1 and dy == 1
+    
+    def chemin_libre(self, nouvelle_ligne, nouvelle_colonne, jeu):
+        return True
+
+class Elephant(Piece):
+    """Classe qui représente la pièce Elephant sur le plateau."""
+    def __init__(self, couleur, ligne, colonne):
+        super().__init__(couleur, ligne, colonne)
+            
+    def mouvement_valide(self, nouvelle_ligne, nouvelle_colonne, plateau):
+        """Définie les mouvements valides pour l'Elephant."""
+        if self.couleur == 'white':
+            # Roi blanc restreint aux colonnes 2, 3 et lignes 5, 6
+            if not self.zone_autorisee(nouvelle_ligne, nouvelle_colonne, lignes_autorisees=range(0, 5)):
+                return False
+        else:
+            # Roi noir restreint aux colonnes 0, 1 et lignes 0, 1
+            if not self.zone_autorisee(nouvelle_ligne, nouvelle_colonne, lignes_autorisees=range(5, 10)):
+                return False
+        
+        dx = abs(self.colonne - nouvelle_colonne)
+        dy = abs(self.ligne - nouvelle_ligne) 
+        return dx == 2 and dy == 2
+
+    def chemin_libre(self, nouvelle_ligne, nouvelle_colonne,jeu):
+        if jeu.matrice[int((nouvelle_ligne+self.ligne)/2)][int((nouvelle_colonne+self.colonne)/2)]==1:
+            return False
+        return True
+
+class Cavalier(Piece):
+    """Classe qui représente la pièce Cavalier sur le plateau."""
+    def __init__(self, couleur, ligne, colonne):
+        super().__init__(couleur, ligne, colonne)
+
+    def mouvement_valide(self, nouvelle_ligne, nouvelle_colonne, plateau):
+        """Définie les mouvements valides pour le Cavalier."""
+        dx = abs(self.colonne - nouvelle_colonne)
+        dy = abs(self.ligne - nouvelle_ligne) 
+        return (dx == 2 and dy == 1) or (dx == 1 and dy == 2) 
+
+    def chemin_libre(self, nouvelle_ligne, nouvelle_colonne, jeu):
+        dx = nouvelle_colonne - self.colonne
+        dy = nouvelle_ligne - self.ligne 
+        if abs(dx)==min(abs(dx),abs(dy)):
+            if jeu.matrice[self.ligne+int(dy/abs(dy))][self.colonne]==1:
+                return False
+        elif abs(dy)==min(abs(dx),abs(dy)):
+            if jeu.matrice[self.ligne][self.colonne+int(dx/abs(dx))]==1:
+                return False
+        return True
+    
+
+class Char(Piece):
+    """Classe qui représente la pièce Char sur le plateau."""
+    def __init__(self, couleur, ligne, colonne):
+        super().__init__(couleur, ligne, colonne)
+      
+    def mouvement_valide(self, nouvelle_ligne, nouvelle_colonne, plateau):
+        """Définie les mouvements valides pour le Char."""
+        return self.colonne == nouvelle_colonne or self.ligne == nouvelle_ligne
+   
+    def chemin_libre(self, nouvelle_ligne, nouvelle_colonne, jeu):
+        if nouvelle_ligne==self.ligne:
+            for i in range(min(nouvelle_colonne,self.colonne)+1,max(nouvelle_colonne,self.colonne)):
+                if jeu.matrice[self.ligne][i]==1:
+                    return False
+        elif nouvelle_colonne==self.colonne:
+            for i in range(min(nouvelle_ligne,self.ligne)+1,max(nouvelle_ligne,self.ligne)):
+                if jeu.matrice[i][self.colonne]==1:
+                    return False
+        return True 
+   
+    
+class Canon(Piece):
+    """Classe qui représente la pièce Canon sur le plateau."""
+    def __init__(self, couleur, ligne, colonne):
+        super().__init__(couleur, ligne, colonne)
+    
+    def mouvement_valide(self, nouvelle_ligne, nouvelle_colonne, plateau):
+        """Définie les mouvements valides pour le Canon."""
+        return self.colonne == nouvelle_colonne or self.ligne == nouvelle_ligne
+
+    def chemin_libre(self, nouvelle_ligne, nouvelle_colonne, jeu):
+        return True
+
+
+class Soldat(Piece):
+    """Classe qui représente la pièce Soldat sur le plateau."""
+    def __init__(self, couleur, ligne, colonne):
+        super().__init__(couleur, ligne, colonne)
+    
+    def mouvement_valide(self, nouvelle_ligne, nouvelle_colonne, plateau):
+        """Définie les mouvements valides pour le Soldat."""
+        if self.couleur == 'white':
+            if self.ligne <= 4:
+                if (nouvelle_ligne == self.ligne + 1) and (nouvelle_colonne==self.colonne):
+                    return True
+            else :
+                dx = abs(nouvelle_colonne - self.colonne)
+                dy = nouvelle_ligne - self.ligne
+                return (dx == 1 and dy == 0) or (dx == 0 and dy == 1)
+        elif self.couleur == 'black' :
+            if self.ligne >= 5:
+                if (nouvelle_ligne == self.ligne - 1) and (nouvelle_colonne==self.colonne):
+                    return True
+            else :
+                dx = abs(nouvelle_colonne - self.colonne)
+                dy = nouvelle_ligne - self.ligne
+                return (dx == 1 and dy == 0) or (dx == 0 and dy == -1)
+        else :
+            return False
+        
+    def chemin_libre(self, nouvelle_ligne, nouvelle_colonne, jeu):
+        return True
+
+
+class Plateau:
+    """Classe qui représente le plateau de jeu."""
+    def __init__(self):        
+        self.fond_image = pygame.image.load("plateau_pixel_art_transp.png").convert()
+        self.fond_image = pygame.transform.scale(self.fond_image, (510, 550))
+        self.largeur, self.hauteur = self.fond_image.get_size()
+        
+    def dessiner(self, ecran):
+        """Dessine la grille du plateau."""
+        
+        ecran.blit(self.fond_image, (0,10))
+        
+
+
+class Jeu:
+    """Classe principale qui gère le jeu."""
+    def __init__(self):
+        # Créer le plateau et les pièces
+        self.plateau = Plateau()
+        self.matrice = [[0 for _ in range(NOMBRE_COLONNES)] for _ in range(NOMBRE_LIGNES)]
+        
+        
+        self.ecran = pygame.display.set_mode((self.plateau.largeur, self.plateau.hauteur))
+        pygame.display.set_caption("Jeu de plateau avec pièces")
+        
+        
+        # Ajout des positions des pièces dans la matrice
+        
+        for i in range(NOMBRE_COLONNES):
+            self.matrice[0][i]+=1
+            self.matrice[-1][i]+=1
+        
+        for i in range(0, 9, 2):
+            self.matrice[3][i]+=1
+            self.matrice[6][i]+=1
+            
+        self.matrice[2][1]+=1
+        self.matrice[2][7]+=1
+        self.matrice[7][1]+=1
+        self.matrice[7][7]+=1
+        
+        # Initialiser les pièces des joueurs
+        self.pieces_J1 = [
+            Char("white", 0, 0), Cavalier("white", 0, 1), Elephant("white", 0, 2),
+            Conseiller("white", 0, 3), General("white", 0, 4), Conseiller("white", 0, 5),
+            Elephant("white", 0, 6), Cavalier("white", 0, 7), Char("white", 0, 8)
+        ]
+        self.pieces_J2 = [
+            Char("black", 9, 0), Cavalier("black", 9, 1), Elephant("black", 9, 2),
+            Conseiller("black", 9, 3), General("black", 9, 4), Conseiller("black", 9, 5),
+            Elephant("black", 9, 6), Cavalier("black", 9, 7), Char("black", 9, 8)
+        ]
+        
+        for i in range(0, 9, 2):
+            self.pieces_J1.append(Soldat("white", 3, i))
+            self.pieces_J2.append(Soldat("black", 6, i))
+        
+        self.pieces_J1.append(Canon("white", 2, 1))
+        self.pieces_J1.append(Canon("white", 2, 7))
+        self.pieces_J2.append(Canon("black", 7, 1))
+        self.pieces_J2.append(Canon("black", 7, 7))
+
+        self.piece_selectionnee = None
+        self.tour_actuel = "white"  # Commence avec le joueur blanc
+
+    def obtenir_case_souris(self, pos_souris):
+        """Convertit la position de la souris en la position de la case sélectionnée (ligne et colonne)."""
+        x, y = pos_souris           # Récupération des coordonnées de la souris
+        colonne = x // TAILLE_CASE  # Convertit l'abscisse en numéro de colonne
+        ligne = y // TAILLE_CASE    # Convertit l'ordonnée en numéro de ligne
+        return ligne, colonne
+
+    def gerer_evenements(self, events):
+        """Gère les événements du jeu, comme les clics de souris."""
+        for event in events:
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                pos_souris = pygame.mouse.get_pos()
+                ligne, colonne = self.obtenir_case_souris(pos_souris)
+                # Vérifie si une pièce est sélectionnée
+                if self.piece_selectionnee:
+                    # Vérifie la validité du déplacement
+                    if self.piece_selectionnee.mouvement_valide(ligne, colonne, self):
+                        # Vérifie si une collision a lieu
+                        if self.piece_selectionnee.chemin_libre(ligne, colonne, self):
+                            # Vérifie s'il y a une pièce adverse sur la case de destination
+                            pieces_adverses = self.pieces_J2 if self.tour_actuel == "white" else self.pieces_J1
+                            piece_capturee = None
+                            for piece in pieces_adverses:
+                                if piece.ligne == ligne and piece.colonne == colonne:
+                                    piece_capturee = piece
+                                    break
+                            
+                            # Si une pièce adverse est présente, la capturer
+                            if piece_capturee:
+                                pieces_adverses.remove(piece_capturee)  # Enlever la pièce adverse
+                                self.matrice[piece_capturee.ligne][piece_capturee.colonne] -= 1
+    
+                            # Déplace la pièce sélectionnée
+                            self.matrice[self.piece_selectionnee.ligne][self.piece_selectionnee.colonne] -= 1
+                            self.matrice[ligne][colonne] += 1
+                            self.piece_selectionnee.deplacer(ligne, colonne)
+                            
+                            # Désélectionne la pièce et change de tour
+                            self.piece_selectionnee = None
+                            self.tour_actuel = "black" if self.tour_actuel == "white" else "white"
+                        else:
+                            # Si le chemin est bloqué, désélectionner la pièce
+                            self.piece_selectionnee = None
+                    else:
+                        # Si le mouvement  est non valide, désélectionner la pièce
+                        self.piece_selectionnee = None
+                else:
+                    # Sélectionner une pièce si elle appartient au joueur actuel
+                    pieces_joueur = self.pieces_J1 if self.tour_actuel == "white" else self.pieces_J2
+                    for piece in pieces_joueur:
+                        if piece.ligne == ligne and piece.colonne == colonne:
+                            self.piece_selectionnee = piece
+                            break
+
+
+    def mettre_a_jour(self):
+        self.plateau.dessiner(self.ecran)
+        for piece in self.pieces_J1:
+            piece.dessiner(self.ecran)
+        for piece in self.pieces_J2:
+            piece.dessiner(self.ecran)
+
+
+
+
+
+
+
+
+
+
+#################################################################
+# Configuration de la fenêtre
+WIDTH, HEIGHT = 800, 600
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Menu avec Boutons")
+
+# Charger l'image de fond
+background = pygame.image.load("menu_cartoon.jpg").convert()
+background = pygame.transform.scale(background, (800, 600))
+
+state = "menu"
+
+# Définition de la classe Bouton
+class Button:
+    def __init__(self, image_path, pos, callback, size, hover_scale=1.1):
+        self.original_image = pygame.image.load(image_path).convert_alpha()
+        self.normal_image = pygame.transform.scale(self.original_image, size)
+        
+        # Calcul de la taille "hover"
+        hover_size = (int(size[0] * hover_scale), int(size[1] * hover_scale))
+        self.hover_image = pygame.transform.scale(self.original_image, hover_size)
+        
+        self.image = self.normal_image
+        self.rect = self.image.get_rect(topleft=pos)
+        self.callback = callback
+        self.pos = pos  # On garde la position originale
+
+    def update(self, mouse_pos):
+        if self.rect.collidepoint(mouse_pos):
+            self.image = self.hover_image
+            self.rect = self.image.get_rect(center=self.rect.center)
+        else:
+            self.image = self.normal_image
+            self.rect = self.image.get_rect(topleft=self.pos)
+
+    def draw(self, surface):
+        surface.blit(self.image, self.rect)
+
+    def check_click(self, pos):
+        if self.rect.collidepoint(pos):
+            self.callback()
+
+
+# Fonctions déclenchées par les boutons
+def start_game():
+    global state, jeu
+    print("Lancement du jeu...")
+    jeu = Jeu()  # ← jeu devient global et accessible dans la boucle principale
+    state = "game"
+
+
+def show_options():
+    print("Options du jeu...")
+    
+def tutoriel():
+    print("tutoriel...")
+
+def quit_game():
+    print("Quitter le jeu...")
+    pygame.quit()
+    sys.exit()
+    
+def go_to_menu():
+    global state
+    print("Retour au menu")
+    state = "menu"
+
+# Création des boutons
+buttons = [
+    Button("jouer.png", (180, 100), start_game, (200,80)),
+    Button("paramètres.png", (150, 200), show_options,(290,87)),
+    Button("tutoriel.png",(180,300),tutoriel,(200,80)),
+    Button("quitter.png", (182, 400), quit_game,(200,80)),
+    
+]
+
+logo = pygame.image.load("logo.png").convert_alpha()
+logo = pygame.transform.scale(logo, (300,120))  # si tu veux redimensionner
+
+bouton_retour = Button("parchemin_cartoon.png", (330, 470), go_to_menu, (150, 60))
+
+
+
+# Boucle principale
+running = True
+while running:
+    screen.blit(background, (0, 0))
+
+    if state == "menu":
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                mouse_pos = event.pos
+                for button in buttons:
+                    button.check_click(mouse_pos)
+
+        mouse_pos = pygame.mouse.get_pos()
+        for button in buttons:
+            button.update(mouse_pos)
+            button.draw(screen)
+
+        screen.blit(logo, (15, -5))
+
+    elif state == "game":
+        events = pygame.event.get()
+        for event in events:
+            if event.type == pygame.QUIT:
+                running = False
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                bouton_retour.check_click(event.pos)
+
+        # Appel logique du jeu
+        jeu.gerer_evenements(events)
+        jeu.mettre_a_jour()
+        
+        bouton_retour.update(pygame.mouse.get_pos())
+        bouton_retour.draw(screen)
+
+        
+
+
+    pygame.display.update()
+
+pygame.quit()
