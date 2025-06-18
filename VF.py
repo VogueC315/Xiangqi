@@ -1,3 +1,4 @@
+
 # -*- coding: utf-8 -*-
 """
 Created on Wed Feb  5 17:02:13 2025
@@ -8,6 +9,8 @@ Created on Wed Feb  5 17:02:13 2025
 import pygame
 import sys
 import copy
+import pygame.surfarray
+import numpy as np
 
 pygame.init()
 pygame.mixer.init()
@@ -19,17 +22,18 @@ TAILLE_CASE = 50         # Taille d'une case en pixels
 TAILLE_FENETRE_LARGEUR = NOMBRE_COLONNES * TAILLE_CASE
 TAILLE_FENETRE_HAUTEUR = NOMBRE_LIGNES * TAILLE_CASE
 
-son_explosion = pygame.mixer.Sound("awp-shoot-sound-effect-cs_go.mp3")
-# sound_victory = 
-# sound_capture = 
-# sound_check = 
-
+#son_explosion = pygame.mixer.Sound("awp-shoot-sound-effect-cs_go.mp3")
+sound_victory = pygame.mixer.Sound("sons/victory.mp3") 
+sound_capture = pygame.mixer.Sound("sons/capture.mp3")
+sound_check = pygame.mixer.Sound("sons/check.wav")
+sound_loss = pygame.mixer.Sound("sons/loss.mp3")
+sound_move =  pygame.mixer.Sound("sons/move.wav")
 
 # Couleurs
 COULEUR_FOND1=(185,156,107)
 COULEUR_FOND = (255, 255, 255)   # Blanc pour le fond
 COULEUR_LIGNE = (0, 0, 0)        # Noir pour les lignes
-
+mouvement_faux_demande = False
 class Piece:
     def __init__(self, color, pos):
         self.color = color   # color of the piece (i.e. indicating its team)
@@ -43,6 +47,7 @@ class Piece:
     def valid_moves(self, game):
         valid_moves = []   # List of the valid moves (solve the problem of check and capture)
         moves = self.possible_moves(game)
+        print("mouvement possibles =", moves)
         for pos in moves:
             # Simulate a move on a copy of the state of the game
             game_clone = game.clone_state()
@@ -50,7 +55,10 @@ class Piece:
 
             # Verify that the clone piece exists
             if piece_clone is None:
+                print("piece_clone is None")
                 continue
+            else:
+                print("piece clone not none")
 
             # Simulate the move with the clones
             captured = game_clone.get_piece(pos)
@@ -65,10 +73,14 @@ class Piece:
 
     def move(self, pos, game):
         captured = game.get_piece(pos)
+        if captured:
+            sound_capture.play()
+        else : 
+            sound_move.play()
         game.set_piece(pos, self)
         game.set_piece(self.position, None)
         self.position = pos
-
+        
     def dessiner(self, ecran):
         """Dessine la pièce sous forme de cercle au centre de la case."""
         x = self.position[1] * TAILLE_CASE + TAILLE_CASE // 2
@@ -466,7 +478,7 @@ class Game:
     def find_general(self, color):
         for row in self.m:
             for piece in row:
-                if piece and piece.type == 'General' and piece.color == color:
+                if piece and piece.__class__.__name__ == 'General' and piece.color == color:
                     return piece.position
 
     def check_mate(self):
@@ -475,6 +487,7 @@ class Game:
                 if piece and piece.color == self.current_turn:
                     if piece.valid_moves(self):
                         return False
+        sound_loss.play()
         return True
 
     def get_mouse_location(self, pos_souris):
@@ -492,7 +505,7 @@ class Game:
                 sys.exit()
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if self.check_mate():
-                    # sound_victory.play()
+                    sound_victory.play()
                     pygame.quit()
                     sys.exit()
                 pos_souris = pygame.mouse.get_pos()
@@ -502,13 +515,18 @@ class Game:
                 if self.piece_selectionnee:
                     if pos in self.piece_selectionnee.valid_moves(self):
                         self.piece_selectionnee.move(pos, self)
-                        son_explosion.play()
+                        #son_explosion.play()
                         self.piece_selectionnee = None
                         # Changes the turn
                         self.current_turn = "black" if self.current_turn == "white" else "white"
+                        if self.is_check():
+                            sound_check.play()
                     else:
-                        # If the movement is not allowed, deselect the piece
+                        # If the movement is not allowed, deselect the piece and print a text asking to make a legal move
+                        global mouvement_faux_demande
                         self.piece_selectionnee = None
+                        mouvement_faux_demande = True
+                        # on affiche le texte dans la fonction mettre_a_jour
                     self.mettre_a_jour()
                 else:
                     # Select a piece if the player possesses it
@@ -518,6 +536,7 @@ class Game:
                     self.mettre_a_jour()
 
     def mettre_a_jour(self):
+        global mouvement_faux_demande
         """Actualise le plateau."""
         if self.piece_selectionnee:
             moves = self.piece_selectionnee.valid_moves(self)
@@ -527,7 +546,14 @@ class Game:
                 x = move[1] * TAILLE_CASE + TAILLE_CASE // 2
                 y = move[0] * TAILLE_CASE + TAILLE_CASE // 2
                 rayon = TAILLE_CASE // 6
-                pygame.draw.circle(self.ecran, "red", (x, y), rayon)
+                if self.m[move[0]][move[1]]!=None:
+                    print("self.m ")
+                    print(self.m)
+                    print("l'element dans la case")
+                    print(self.m[move[0]][move[1]])
+                    pygame.draw.circle(self.ecran, "red", (x, y), int(2.3 * rayon))
+                else:
+                    pygame.draw.circle(self.ecran, "red", (x, y), rayon)
             for row in self.m:
                 for piece in row:
                     if piece:
@@ -539,6 +565,16 @@ class Game:
                     if piece:
                         piece.dessiner(self.ecran)
         pygame.display.flip()
+        "si le joeur demande un mouvement interdit, affichez un meessage d'erreur"
+        if mouvement_faux_demande: 
+            font = pygame.font.SysFont(None, 30)
+            text_surface = font.render("Selectionnez un mouvement autorisé", True, (255, 255, 255))
+            clock = pygame.time.Clock()
+            self.ecran.blit(text_surface, (50, 50))
+            pygame.display.flip()
+            mouvement_faux_demande = False
+                        
+            
     
     def lancer(self):
         clock = pygame.time.Clock()
@@ -554,3 +590,4 @@ if __name__ == "__main__":
     plateau = Board()
     jeu = Game(plateau)
     jeu.lancer()
+
